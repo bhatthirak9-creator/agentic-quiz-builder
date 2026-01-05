@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Knowledge Extractor | Autonomous Quiz Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+          "
+        >
+          <div>
+            <h1>
+              Knowledge Extractor <span style="font-weight: 300">AI</span>
+            </h1>
+            <p class="subtitle">
+              Transform long-form educational content into hierarchical concepts
+              and validated quiz sets using an autonomous agentic pipeline.
+            </p>
+          </div>
+          {% if username %}
+          <div style="text-align: right; margin-left: 2rem">
+            <p
+              style="
+                color: var(--primary);
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+              "
+            >
+              {{ username }}
+            </p>
+            <a
+              href="/logout"
+              class="badge badge-high"
+              style="text-decoration: none; border: 1px solid var(--error)"
+              >Logout</a
+            >
+          </div>
+          {% endif %}
+        </div>
+      </header>
+
+      <section class="input-section glass-card">
+        <div class="input-container">
+          <textarea
+            id="sourceText"
+            placeholder="Paste your long educational text here (Articles, Textbook chapters, Lecture notes...)"
+            spellcheck="false"
+          ></textarea>
+          <div class="loader-bar" id="progressBar"></div>
+        </div>
+        <button id="extractBtn" class="btn-primary">
+          <i data-lucide="zap"></i>
+          Start Autonomous Extraction
+        </button>
+      </section>
+
+      <!-- Agent Workflow Visualizer -->
+      <section id="pipeline" class="agent-pipeline glass-card">
+        <div class="section-header">
+          <h2>Autonomous Process</h2>
+          <span class="badge badge-medium">Agentic Thinking</span>
+        </div>
+        <div class="steps-list">
+          <div id="step-1" class="step-item">
+            <div class="step-icon"><i data-lucide="search"></i></div>
+            <div class="step-content">
+              <div class="step-title">Knowledge Extraction</div>
+              <div class="step-desc">
+                Identifying key entities, terminology, and axioms.
+              </div>
+            </div>
+          </div>
+          <div id="step-2" class="step-item">
+            <div class="step-icon"><i data-lucide="git-branch"></i></div>
+            <div class="step-content">
+              <div class="step-title">Hierarchical Mapping</div>
+              <div class="step-desc">
+                Organizing concepts into parent-child relationships.
+              </div>
+            </div>
+          </div>
+          <div id="step-3" class="step-item">
+            <div class="step-icon"><i data-lucide="file-question"></i></div>
+            <div class="step-content">
+              <div class="step-title">Quiz Generation</div>
+              <div class="step-desc">
+                Synthesizing 10 questions covering all cognitive levels.
+              </div>
+            </div>
+          </div>
+          <div id="step-4" class="step-item">
+            <div class="step-icon"><i data-lucide="bar-chart-3"></i></div>
+            <div class="step-content">
+              <div class="step-title">Difficulty Ranking</div>
+              <div class="step-desc">
+                Categorizing questions into Low, Medium, and High complexity.
+              </div>
+            </div>
+          </div>
+          <div id="step-5" class="step-item">
+            <div class="step-icon"><i data-lucide="shield-check"></i></div>
+            <div class="step-content">
+              <div class="step-title">Logic Validation</div>
+              <div class="step-desc">
+                Self-checking difficulty alignment and factual consistency.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results Display -->
+      <section id="results">
+        <div class="results-grid">
+          <div class="results-left">
+            <div class="section-header">
+              <h2>Hierarchy</h2>
+            </div>
+            <div id="conceptsTree" class="concepts-tree">
+              <!-- Concepts will be injected here -->
+            </div>
+          </div>
+          <div class="results-right">
+            <div class="section-header">
+              <h2>Validated Quiz Builder</h2>
+              <span id="quizCountBadge" class="badge badge-low"
+                >10 Questions</span
+              >
+            </div>
+            <div id="quizList" class="quiz-list">
+              <!-- Quiz cards will be injected here -->
+            </div>
+            <div id="submitContainer" class="submit-container"></div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <p>&copy; 2026 Antigravity. Autonomous Knowledge Extraction System.</p>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      // Initialize Lucide Icons
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
