@@ -1,165 +1,746 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Knowledge Extractor | Autonomous Quiz Builder</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-  </head>
-  <body>
-    <div class="container">
-      <header>
-        <div
-          style="
+
+<head>
+    <meta charset="UTF-8">
+    <title>Triple Edge AI | Knowledge Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --primary: #8b5cf6;
+            --secondary: #3b82f6;
+            --accent: #06b6d4;
+            --glass: rgba(20, 25, 40, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary), var(--secondary));
+            border-radius: 4px;
+        }
+
+        * {
+            box-sizing: border-box;
+            outline: none;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: flex-start;
-          "
-        >
-          <div>
-            <h1>
-              Knowledge Extractor <span style="font-weight: 300">AI</span>
-            </h1>
-            <p class="subtitle">
-              Transform long-form educational content into hierarchical concepts
-              and validated quiz sets using an autonomous agentic pipeline.
-            </p>
-          </div>
-          {% if username %}
-          <div style="text-align: right; margin-left: 2rem">
-            <p
-              style="
-                color: var(--primary);
-                margin-bottom: 0.5rem;
-                font-weight: 600;
-              "
-            >
-              {{ username }}
-            </p>
-            <a
-              href="/logout"
-              class="badge badge-high"
-              style="text-decoration: none; border: 1px solid var(--error)"
-              >Logout</a
-            >
-          </div>
-          {% endif %}
-        </div>
-      </header>
+            padding: 40px 10px;
+            overflow-y: auto;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 20%);
+        }
 
-      <section class="input-section glass-card">
-        <div class="input-container">
-          <textarea
-            id="sourceText"
-            placeholder="Paste your long educational text here (Articles, Textbook chapters, Lecture notes...)"
-            spellcheck="false"
-          ></textarea>
-          <div class="loader-bar" id="progressBar"></div>
-        </div>
-        <button id="extractBtn" class="btn-primary">
-          <i data-lucide="zap"></i>
-          Start Autonomous Extraction
-        </button>
-      </section>
+        #neural-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-      <!-- Agent Workflow Visualizer -->
-      <section id="pipeline" class="agent-pipeline glass-card">
-        <div class="section-header">
-          <h2>Autonomous Process</h2>
-          <span class="badge badge-medium">Agentic Thinking</span>
-        </div>
-        <div class="steps-list">
-          <div id="step-1" class="step-item">
-            <div class="step-icon"><i data-lucide="search"></i></div>
-            <div class="step-content">
-              <div class="step-title">Knowledge Extraction</div>
-              <div class="step-desc">
-                Identifying key entities, terminology, and axioms.
-              </div>
-            </div>
-          </div>
-          <div id="step-2" class="step-item">
-            <div class="step-icon"><i data-lucide="git-branch"></i></div>
-            <div class="step-content">
-              <div class="step-title">Hierarchical Mapping</div>
-              <div class="step-desc">
-                Organizing concepts into parent-child relationships.
-              </div>
-            </div>
-          </div>
-          <div id="step-3" class="step-item">
-            <div class="step-icon"><i data-lucide="file-question"></i></div>
-            <div class="step-content">
-              <div class="step-title">Quiz Generation</div>
-              <div class="step-desc">
-                Synthesizing 10 questions covering all cognitive levels.
-              </div>
-            </div>
-          </div>
-          <div id="step-4" class="step-item">
-            <div class="step-icon"><i data-lucide="bar-chart-3"></i></div>
-            <div class="step-content">
-              <div class="step-title">Difficulty Ranking</div>
-              <div class="step-desc">
-                Categorizing questions into Low, Medium, and High complexity.
-              </div>
-            </div>
-          </div>
-          <div id="step-5" class="step-item">
-            <div class="step-icon"><i data-lucide="shield-check"></i></div>
-            <div class="step-content">
-              <div class="step-title">Logic Validation</div>
-              <div class="step-desc">
-                Self-checking difficulty alignment and factual consistency.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        .top-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
 
-      <!-- Results Display -->
-      <section id="results">
-        <div class="results-grid">
-          <div class="results-left">
-            <div class="section-header">
-              <h2>Hierarchy</h2>
-            </div>
-            <div id="conceptsTree" class="concepts-tree">
-              <!-- Concepts will be injected here -->
-            </div>
-          </div>
-          <div class="results-right">
-            <div class="section-header">
-              <h2>Validated Quiz Builder</h2>
-              <span id="quizCountBadge" class="badge badge-low"
-                >10 Questions</span
-              >
-            </div>
-            <div id="quizList" class="quiz-list">
-              <!-- Quiz cards will be injected here -->
-            </div>
-            <div id="submitContainer" class="submit-container"></div>
-          </div>
-        </div>
-      </section>
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-      <footer>
-        <p>&copy; 2026 Antigravity. Autonomous Knowledge Extraction System.</p>
-      </footer>
+        .icon-btn:hover {
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .app-shell {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1000px;
+            background: var(--glass);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .app-logo {
+            display: block;
+            margin: 0 auto 15px;
+            width: 140px;
+            height: auto;
+            filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.4));
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 0 0 5px 0;
+            background: linear-gradient(135deg, #fff, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .name-input {
+            width: 100%;
+            max-width: 500px;
+            display: block;
+            margin: 0 auto 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            color: #fff;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: 0.3s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .name-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        /* SECTIONS */
+        .section-title {
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 30px 0 15px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 15px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+
+        .card.active {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .card.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+        }
+
+        .icon {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .lbl {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            color: #fff;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 24px;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #fff;
+        }
+
+        .step {
+            display: none;
+            animation: fade 0.4s forwards;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fade {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Quiz UI */
+        .q-progress {
+            text-align: center;
+            color: var(--text);
+            margin-bottom: 25px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .q-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .q-txt {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            color: #fff;
+        }
+
+        .opt {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+        }
+
+        .opt:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .opt.selected {
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .opt.correct {
+            border-color: #4ade80;
+            color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .opt.wrong {
+            border-color: #f87171;
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.1);
+            opacity: 0.6;
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 6px solid rgba(255, 255, 255, 0.05);
+            border-top-color: var(--accent);
+            border-right-color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 0 auto 30px;
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .loader {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-controls"><button class="icon-btn" onclick="toggleSound()" title="Sound">🔊</button></div>
+    <canvas id="neural-canvas"></canvas>
+
+    <div class="app-shell">
+        <img src="logo.jpg" class="app-logo" id="cert-logo" alt="Triple Edge AI">
+        <h1>Triple Edge AI</h1>
+        <p class="subtitle">Search-Optimized Knowledge Engine</p>
+
+        <!-- STEP 1: CONFIG -->
+        <div id="step-1" class="step active">
+            <input type="text" id="username" class="name-input" placeholder="Enter Full Name..." autocomplete="off">
+
+            <div class="section-title">Tech Academy</div>
+            <div class="grid">
+                <div class="card" onclick="toggle(this, 'Python')"><span class="icon">🐍</span><span
+                        class="lbl">Python</span></div>
+                <div class="card" onclick="toggle(this, 'Java')"><span class="icon">☕</span><span
+                        class="lbl">Java</span></div>
+                <div class="card" onclick="toggle(this, 'JS')"><span class="icon">🟨</span><span
+                        class="lbl">JavaScript</span></div>
+                <div class="card" onclick="toggle(this, 'CPP')"><span class="icon">⚙️</span><span class="lbl">C++</span>
+                </div>
+                <div class="card" onclick="toggle(this, 'AI')"><span class="icon">🧠</span><span class="lbl">AI &
+                        ML</span></div>
+                <div class="card" onclick="toggle(this, 'SQL')"><span class="icon">🗄️</span><span
+                        class="lbl">SQL</span></div>
+                <div class="card" onclick="toggle(this, 'Web')"><span class="icon">🌐</span><span class="lbl">Web
+                        Dev</span></div>
+            </div>
+
+            <div class="section-title">School & General</div>
+            <div class="grid">
+                <div class="card" onclick="toggle(this, 'Math')"><span class="icon">📐</span><span
+                        class="lbl">Maths</span></div>
+                <div class="card" onclick="toggle(this, 'Science')"><span class="icon">🔬</span><span
+                        class="lbl">Science</span></div>
+                <div class="card" onclick="toggle(this, 'English')"><span class="icon">📚</span><span
+                        class="lbl">English</span></div>
+                <div class="card" onclick="toggle(this, 'History')"><span class="icon">🏛️</span><span
+                        class="lbl">History</span></div>
+                <div class="card" onclick="toggle(this, 'Geo')"><span class="icon">🌍</span><span
+                        class="lbl">Geography</span></div>
+                <div class="card" onclick="toggle(this, 'Sport')"><span class="icon">⚽</span><span
+                        class="lbl">Sports</span></div>
+                <div class="card" onclick="toggle(this, 'Music')"><span class="icon">🎵</span><span
+                        class="lbl">Music</span></div>
+            </div>
+
+            <div id="custom-area" style="display:none">
+                <textarea id="inp-text" placeholder="Paste data source for AI analysis..."></textarea>
+            </div>
+
+            <button class="btn-main" onclick="initQuiz()">Generate Quiz 🚀</button>
+        </div>
+
+        <div id="loading" class="step" style="text-align:center; padding-top:40px;">
+            <div class="spinner"></div>
+            <h3>Fetching Data...</h3>
+            <p style="color:#888;">Filtering for selected subjects only...</p>
+        </div>
+
+        <div id="step-2" class="step">
+            <div class="q-progress">QUESTION <span id="q-curr">1</span> / 10</div>
+            <div id="quiz-con"></div>
+            <button class="btn-main" onclick="submit()">Submit & Verify ✅</button>
+        </div>
+
+        <div id="step-3" class="step" style="text-align:center;">
+            <h2>Assessment Finalized</h2>
+            <div class="score-circle" id="final-score">0%</div>
+            <p id="msg" style="color:#aaa; margin-bottom:30px; font-size:1.1rem;">Calculating...</p>
+            <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                <button class="btn-main" onclick="location.reload()" style="flex:1;">New Quiz 🔄</button>
+                <button class="btn-main btn-outline" onclick="dlCard()" style="flex:1;">Download Certificate 📜</button>
+            </div>
+        </div>
     </div>
 
-    <script src="app.js"></script>
     <script>
-      // Initialize Lucide Icons
-      lucide.createIcons();
+        // --- MASSIVE DB ---
+        const DB = {
+            Python: [
+                { q: "Output of: print(3 * '7')", o: ["777", "21"], a: "777" }, { q: "Keyword for function?", o: ["def", "func"], a: "def" }, { q: "Interpreted?", o: ["Yes", "No"], a: "Yes" },
+                { q: "List syntax?", o: ["[]", "{}"], a: "[]" }, { q: "Immutable?", o: ["Tuple", "List"], a: "Tuple" }, { q: "Library for CSV?", o: ["pandas", "react"], a: "pandas" },
+                { q: "True/False type?", o: ["bool", "int"], a: "bool" }, { q: "Comment symbol?", o: ["#", "//"], a: "#" }, { q: "Exponent operator?", o: ["**", "^"], a: "**" },
+                { q: "String formatting?", o: ["f-string", "$-string"], a: "f-string" }
+            ],
+            Java: [
+                { q: "Entry point?", o: ["main meth", "start meth"], a: "main meth" }, { q: "int size?", o: ["32bit", "64bit"], a: "32bit" }, { q: "Inheritance?", o: ["extends", "implements"], a: "extends" },
+                { q: "Interface method?", o: ["abstract", "static"], a: "abstract" }, { q: "Compile to?", o: ["Bytecode", "Binary"], a: "Bytecode" }, { q: "JVM stands for?", o: ["Java Virtual Machine", "Java Visual Model"], a: "Java Virtual Machine" },
+                { q: "ArrayList package?", o: ["java.util", "java.io"], a: "java.util" }, { q: "Char size?", o: ["16bit", "8bit"], a: "16bit" }, { q: "Const keyword?", o: ["final", "const"], a: "final" },
+                { q: "This keyword?", o: ["Ref current obj", "Ref parent"], a: "Ref current obj" }
+            ],
+            JS: [
+                { q: "Creator?", o: ["Brendan Eich", "Bill Gates"], a: "Brendan Eich" }, { q: "null == undefined?", o: ["True", "False"], a: "True" }, { q: "null === undefined?", o: ["False", "True"], a: "False" },
+                { q: "Const reassign?", o: ["Error", "Allowed"], a: "Error" }, { q: "Block scope?", o: ["let", "var"], a: "let" }, { q: "Async method?", o: ["Promise", "Thread"], a: "Promise" },
+                { q: "JSON full form?", o: ["JavaScript Object Notation", "Java Syntax On"], a: "JavaScript Object Notation" }, { q: "DOM?", o: ["Document Object Model", "Data Obj"], a: "Document Object Model" },
+                { q: "ES6 year?", o: ["2015", "2016"], a: "2015" }, { q: "Modulo op?", o: ["%", "mod"], a: "%" }
+            ],
+            CPP: [
+                { q: "Pointer?", o: ["Mem Address", "Value"], a: "Mem Address" }, { q: "Destructor?", o: ["~", "!"], a: "~" }, { q: "Std Out?", o: ["cout", "print"], a: "cout" },
+                { q: "Ref operator?", o: ["&", "*"], a: "&" }, { q: "Header ext?", o: [".h", ".c"], a: ".h" }, { q: "Alloc memory?", o: ["new", "alloc"], a: "new" },
+                { q: "Private by default?", o: ["Class", "Struct"], a: "Class" }, { q: "Inheritance?", o: [":", "extends"], a: ":" }, { q: "Main return?", o: ["int", "void"], a: "int" },
+                { q: "End line?", o: ["endl", "stop"], a: "endl" }
+            ],
+            AI: [
+                { q: "NN unit?", o: ["Neuron", "Cell"], a: "Neuron" }, { q: "Overfitting?", o: ["Low Bias High Var", "High Bias"], a: "Low Bias High Var" }, { q: "Supervised learning?", o: ["Labeled Data", "Unlabeled"], a: "Labeled Data" },
+                { q: "NLP?", o: ["Natural Language Processing", "Neural Log Proc"], a: "Natural Language Processing" }, { q: "Reinforcement?", o: ["Rewards", "Labels"], a: "Rewards" }, { q: "Vision Lib?", o: ["OpenCV", "Pandas"], a: "OpenCV" },
+                { q: "Deep Learning?", o: ["Multi-layer NN", "Single layer"], a: "Multi-layer NN" }, { q: "Activation func?", o: ["ReLU", "Linear"], a: "ReLU" }, { q: "Cluster?", o: ["Unsupervised", "Supervised"], a: "Unsupervised" },
+                { q: "Bias vs Variance?", o: ["Tradeoff", "Same"], a: "Tradeoff" }
+            ],
+            SQL: [
+                { q: "Select all?", o: ["SELECT *", "GET ALL"], a: "SELECT *" }, { q: "Unique rows?", o: ["DISTINCT", "UNIQUE"], a: "DISTINCT" }, { q: "Filter?", o: ["WHERE", "FILTER"], a: "WHERE" },
+                { q: "Sort?", o: ["ORDER BY", "SORT"], a: "ORDER BY" }, { q: "Count rows?", o: ["COUNT(*)", "SUM(*)"], a: "COUNT(*)" }, { q: "Remove table?", o: ["DROP", "DELETE"], a: "DROP" },
+                { q: "Add row?", o: ["INSERT", "ADD"], a: "INSERT" }, { q: "Update data?", o: ["UPDATE", "MODIFY"], a: "UPDATE" }, { q: "Pattern match?", o: ["LIKE", "MATCH"], a: "LIKE" },
+                { q: "Join types?", o: ["Inner/Outer", "Left/Right"], a: "Inner/Outer" }
+            ],
+            Web: [
+                { q: "HTML?", o: ["Markup", "Programming"], a: "Markup" }, { q: "CSS?", o: ["Style", "Logic"], a: "Style" }, { q: "H1 tag?", o: ["Heading", "Header"], a: "Heading" },
+                { q: "Link tag?", o: ["<a>", "<link>"], a: "<a>" }, { q: "Image tag?", o: ["<img>", "<image>"], a: "<img>" }, { q: "CSS ID?", o: ["#", ". "], a: "#" },
+                { q: "CSS Class?", o: [".", "#"], a: "." }, { q: "Flexbox?", o: ["Layout", "Color"], a: "Layout" }, { q: "Grid?", o: ["2D Layout", "1D Layout"], a: "2D Layout" },
+                { q: "HTTP?", o: ["Protocol", "Lang"], a: "Protocol" }
+            ],
+            Math: [
+                { q: "Sqrt(144)?", o: ["12", "11"], a: "12" }, { q: "Pi approx?", o: ["3.14", "3.41"], a: "3.14" }, { q: "7 x 9?", o: ["63", "56"], a: "63" },
+                { q: "Angles in Triangle?", o: ["180", "360"], a: "180" }, { q: "Prime under 10?", o: ["2,3,5,7", "1,3,5,7"], a: "2,3,5,7" }, { q: "Pythagoras?", o: ["a^2+b^2=c^2", "a+b=c"], a: "a^2+b^2=c^2" },
+                { q: "5 cubed?", o: ["125", "25"], a: "125" }, { q: "Radius to Diameter?", o: ["x2", "/2"], a: "x2" }, { q: "Algebra x+5=10?", o: ["5", "15"], a: "5" },
+                { q: "Right angle?", o: ["90", "45"], a: "90" }
+            ],
+            Science: [
+                { q: "H2O?", o: ["Water", "Salt"], a: "Water" }, { q: "Cell Powerhouse?", o: ["Mitochondria", "Nucleus"], a: "Mitochondria" }, { q: "Au symbol?", o: ["Gold", "Silver"], a: "Gold" },
+                { q: "Speed of Light?", o: ["300,000 km/s", "300 km/s"], a: "300,000 km/s" }, { q: "DNA?", o: ["Genetic Code", "Protein"], a: "Genetic Code" }, { q: "Photosynthesis?", o: ["Plants", "Animals"], a: "Plants" },
+                { q: "Hardest Mineral?", o: ["Diamond", "Iron"], a: "Diamond" }, { q: "Planet count?", o: ["8", "9"], a: "8" }, { q: "Gravity on Earth?", o: ["9.8 m/s2", "10.5 m/s2"], a: "9.8 m/s2" },
+                { q: "Electron charge?", o: ["Negative", "Positive"], a: "Negative" }
+            ],
+            English: [
+                { q: "Vowels?", o: ["AEIOU", "ABCD"], a: "AEIOU" }, { q: "Past of Run?", o: ["Ran", "Runned"], a: "Ran" }, { q: "Antonym of Hot?", o: ["Cold", "Warm"], a: "Cold" },
+                { q: "Synonym of Happy?", o: ["Joyful", "Sad"], a: "Joyful" }, { q: "plural of Child?", o: ["Children", "Childs"], a: "Children" }, { q: "Adjective describes?", o: ["Noun", "Verb"], a: "Noun" },
+                { q: "Verb is?", o: ["Action", "Name"], a: "Action" }, { q: "Shakespeare was?", o: ["Playwright", "King"], a: "Playwright" }, { q: "Rhyme with Cat?", o: ["Hat", "Dog"], a: "Hat" },
+                { q: "First letter?", o: ["A", "Z"], a: "A" }
+            ],
+            History: [
+                { q: "WW2 End?", o: ["1945", "1939"], a: "1945" }, { q: "First Man on Moon?", o: ["Neil Armstrong", "Buzz"], a: "Neil Armstrong" }, { q: "Egypt famous for?", o: ["Pyramids", "Cars"], a: "Pyramids" },
+                { q: "US Independence?", o: ["1776", "1800"], a: "1776" }, { q: "Titanic Year?", o: ["1912", "1920"], a: "1912" }, { q: "Cold War?", o: ["USA vs USSR", "UK vs US"], a: "USA vs USSR" },
+                { q: "Ancient Rome?", o: ["Italy", "Greece"], a: "Italy" }, { q: "Invented Phone?", o: ["Bell", "Edison"], a: "Bell" }, { q: "Discovery of America?", o: ["1492", "1500"], a: "1492" },
+                { q: "Iron Lady?", o: ["Thatcher", "Queen"], a: "Thatcher" }
+            ],
+            Geo: [
+                { q: "Largest Ocean?", o: ["Pacific", "Atlantic"], a: "Pacific" }, { q: "Capital of France?", o: ["Paris", "Rome"], a: "Paris" }, { q: "Continents?", o: ["7", "5"], a: "7" },
+                { q: "Longest River?", o: ["Nile", "Amazon"], a: "Nile" }, { q: "Biggest Country?", o: ["Russia", "USA"], a: "Russia" }, { q: "Desert?", o: ["Sahara", "Gobi"], a: "Sahara" },
+                { q: "Mt Everest?", o: ["Nepal", "India"], a: "Nepal" }, { q: "Capital of UK?", o: ["London", "York"], a: "London" }, { q: "Equator?", o: ["0 deg Lat", "90 deg Lat"], a: "0 deg Lat" },
+                { q: "Amazon Rainforest?", o: ["Brazil", "Africa"], a: "Brazil" }
+            ],
+            Sport: [
+                { q: "Soccer players?", o: ["11", "10"], a: "11" }, { q: "NBA sport?", o: ["Basketball", "Baseball"], a: "Basketball" }, { q: "Grand Slam?", o: ["Tennis", "Golf"], a: "Tennis" },
+                { q: "Olympics eq?", o: ["4 years", "2 years"], a: "4 years" }, { q: "Cricket stumps?", o: ["3", "4"], a: "3" }, { q: "Fastest man?", o: ["Bolt", "Gay"], a: "Bolt" },
+                { q: "Ping Pong?", o: ["Table Tennis", "Badminton"], a: "Table Tennis" }, { q: "Super Bowl?", o: ["NFL", "NBA"], a: "NFL" }, { q: "Marathon dist?", o: ["42km", "10km"], a: "42km" },
+                { q: "Yellow Card?", o: ["Warning", "Goal"], a: "Warning" }
+            ],
+            Music: [
+                { q: "Piano keys?", o: ["88", "55"], a: "88" }, { q: "King of Pop?", o: ["MJ", "Elvis"], a: "MJ" }, { q: "Violin strings?", o: ["4", "6"], a: "4" },
+                { q: "Beethoven was?", o: ["Deaf", "Blind"], a: "Deaf" }, { q: "Fab Four?", o: ["Beatles", "Queen"], a: "Beatles" }, { q: "Jazz origin?", o: ["New Orleans", "NY"], a: "New Orleans" },
+                { q: "Guitar strings std?", o: ["6", "4"], a: "6" }, { q: "Reggae icon?", o: ["Bob Marley", "Prince"], a: "Bob Marley" }, { q: "Rap origin?", o: ["USA", "UK"], a: "USA" },
+                { q: "Opera lang?", o: ["Italian", "English"], a: "Italian" }
+            ]
+        };
+
+        let selection = new Set();
+        let questions = [];
+        let audio = true;
+        const QUIZ_LENGTH = 10;
+
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        function tone(f, t, d) {
+            if (!audio) return;
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.type = t; o.frequency.value = f;
+            g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d);
+            o.connect(g); g.connect(ctx.destination);
+            o.start(); o.stop(ctx.currentTime + d);
+        }
+        function toggleSound() { audio = !audio; document.querySelector('.icon-btn').innerText = audio ? '🔊' : '🔇'; }
+
+        function toggle(el, k) {
+            tone(600, 'sine', 0.1);
+            if (selection.has(k)) { selection.delete(k); el.classList.remove('active'); }
+            else { selection.add(k); el.classList.add('active'); }
+            document.getElementById('custom-area').style.display = selection.has('Custom') ? 'block' : 'none';
+        }
+
+        function initQuiz() {
+            tone(800, 'triangle', 0.15);
+            const name = document.getElementById('username').value.trim();
+            if (name.length === 0) return alert("Please enter Name first!");
+            if (selection.size === 0) return alert("Select at least one subject.");
+
+            document.getElementById('step-1').classList.remove('active');
+            document.getElementById('loading').classList.add('active');
+            setTimeout(start, 1500);
+        }
+
+        function start() {
+            document.getElementById('loading').classList.remove('active');
+            questions = [];
+            selection.forEach(k => { if (DB[k]) questions.push(...DB[k]); });
+
+            if (questions.length > 0 && questions.length < 10) {
+                while (questions.length < 10) {
+                    questions = questions.concat(questions);
+                }
+            }
+
+            questions = questions.sort(() => Math.random() - .5).slice(0, 10);
+
+            const c = document.getElementById('quiz-con'); c.innerHTML = '';
+            questions.forEach((q, i) => {
+                let h = `<div class="q-item" id="q${i}"><div class="q-txt">${i + 1}. ${q.q}</div>`;
+                q.o.forEach(o => h += `<div class="opt" onclick="sel(this,${i},'${o}')">${o}</div>`);
+                h += `<input type="hidden" id="a${i}"></div>`;
+                c.innerHTML += h;
+            });
+
+            document.getElementById('step-2').classList.add('active');
+        }
+
+        function sel(el, i, v) {
+            tone(500, 'sine', 0.05);
+            document.querySelectorAll(`#q${i} .opt`).forEach(x => x.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById(`a${i}`).value = v;
+            const n = document.querySelectorAll('input[type="hidden"][value]:not([value=""])').length;
+            document.getElementById('q-curr').innerText = Math.min(n + 1, 10);
+        }
+
+        function submit() {
+            let sc = 0;
+            questions.forEach((q, i) => {
+                const v = document.getElementById(`a${i}`).value;
+                const rows = document.querySelectorAll(`#q${i} .opt`);
+                rows.forEach(r => {
+                    if (r.innerText === q.a) r.classList.add('correct');
+                    if (r.innerText === v && v !== q.a) r.classList.add('wrong');
+                });
+                if (v === q.a) sc++;
+            });
+
+            const p = Math.round((sc / questions.length) * 100);
+            document.getElementById('final-score').innerText = `${p}%`;
+            document.getElementById('msg').innerText = p > 70 ? "Excellent Performance!" : "Good effort, keep learning.";
+            p > 60 ? tone(600, 'triangle', 0.4) : tone(300, 'sawtooth', 0.3);
+
+            document.getElementById('step-2').classList.remove('active');
+            document.getElementById('step-3').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        async function dlCard() {
+            tone(1000, 'sine', 0.2);
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a5');
+            const name = document.getElementById('username').value || "Candidate";
+            const scoreTxt = document.getElementById('final-score').innerText;
+            const topics = Array.from(selection).join(', ');
+            const date = new Date().toLocaleDateString();
+
+            // Calculate Grade
+            const scoreVal = parseInt(scoreTxt);
+            let grade = "D (Fair)";
+            if (scoreVal >= 90) grade = "A+ (Outstanding)";
+            else if (scoreVal >= 80) grade = "A (Excellent)";
+            else if (scoreVal >= 70) grade = "B (Very Good)";
+            else if (scoreVal >= 60) grade = "C (Good)";
+            else grade = "D (Fair)";
+
+            const gold = [218, 165, 32];
+            const dark = [20, 20, 30];
+
+            // --- BACKGROUND ---
+            doc.setFillColor(255, 255, 255); doc.rect(0, 0, 210, 148, 'F');
+            doc.setLineWidth(3); doc.setDrawColor(...gold); doc.rect(5, 5, 200, 138);
+            doc.setLineWidth(1); doc.rect(8, 8, 194, 132);
+
+            // Corners
+            doc.setFillColor(...gold);
+            doc.triangle(0, 0, 25, 0, 0, 25, 'F'); doc.triangle(210, 0, 185, 0, 210, 25, 'F');
+            doc.triangle(0, 148, 25, 148, 0, 123, 'F'); doc.triangle(210, 148, 185, 148, 210, 123, 'F');
+
+            // Logo
+            try { const img = document.getElementById('cert-logo'); doc.addImage(img, 'PNG', 92.5, 12, 25, 25); } catch (e) { }
+
+            // Header
+            doc.setFont("times", "bold"); doc.setFontSize(28); doc.setTextColor(...gold);
+            doc.text("CERTIFICATE OF ACHIEVEMENT", 105, 50, { align: "center" });
+
+            // Body
+            doc.setFont("helvetica", "normal"); doc.setFontSize(12); doc.setTextColor(...dark);
+            doc.text("This is to certify that", 105, 62, { align: "center" });
+
+            doc.setFont("times", "bolditalic"); doc.setFontSize(30); doc.setTextColor(0, 0, 0);
+            doc.text(name, 105, 78, { align: "center" });
+            doc.setLineWidth(0.5); doc.setDrawColor(...gold); doc.line(60, 80, 150, 80);
+
+            doc.setFont("helvetica", "normal"); doc.setFontSize(12); doc.setTextColor(80, 80, 80);
+            doc.text("has successfully completed the assessment in", 105, 90, { align: "center" });
+
+            doc.setFont("courier", "bold"); doc.setFontSize(14); doc.setTextColor(...gold);
+            doc.text(`[ ${topics} ]`, 105, 100, { align: "center" });
+
+            // --- GRADE ONLY (Scored Removed) ---
+            doc.setTextColor(...dark);
+            doc.setFontSize(30);
+            doc.text(`Grade: ${grade}`, 105, 118, { align: "center" });
+
+            // Footer
+            doc.setFontSize(10); doc.setTextColor(100, 100, 100); doc.setFont("helvetica", "normal");
+            doc.text(`Date: ${date}`, 20, 135);
+
+            // Signature
+            doc.setFont("times", "bolditalic"); doc.setTextColor(...gold); doc.setFontSize(16);
+            doc.text("Triple Edge Authority", 185, 132, { align: "right" });
+            doc.setLineWidth(0.5); doc.setDrawColor(150, 150, 150); doc.line(155, 134, 195, 134);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(150, 150, 150);
+            doc.text("Verified by Triple Edge Authority", 185, 140, { align: "right" });
+
+            doc.save(`${name}_TripleEdge_Gold_Cert.pdf`);
+        }
+
+        const bg = document.getElementById('neural-canvas'); const b = bg.getContext('2d');
+        let w, h, pts = [];
+        function sz() { w = bg.width = innerWidth; h = bg.height = innerHeight; }
+        window.addEventListener('resize', sz); sz();
+        for (let i = 0; i < 40; i++) pts.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - .5), vy: (Math.random() - .5) });
+        function tick() {
+            b.clearRect(0, 0, w, h); b.fillStyle = '#8b5cf6'; b.strokeStyle = 'rgba(139, 92, 246, 0.15)';
+            pts.forEach(p => {
+                p.x += p.vx; p.y += p.vy; if (p.x < 0 || p.x > w) p.vx *= -1; if (p.y < 0 || p.y > h) p.vy *= -1;
+                b.beginPath(); b.arc(p.x, p.y, 2, 0, 7); b.fill();
+                pts.forEach(p2 => { if (Math.hypot(p.x - p2.x, p.y - p2.y) < 120) { b.beginPath(); b.moveTo(p.x, p.y); b.lineTo(p2.x, p2.y); b.stroke(); } });
+            });
+            requestAnimationFrame(tick);
+        }
+        tick();
     </script>
-  </body>
+</body>
+
 </html>
